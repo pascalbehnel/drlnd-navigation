@@ -16,7 +16,6 @@ LR = 5e-4               # learning rate
 UPDATE_EVERY = 4        # how often to update the network
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-#device = torch.device('cpu')
 
 class Agent():
     """Interacts with and learns from the environment."""
@@ -37,8 +36,6 @@ class Agent():
         # Q-Network
         self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)
         self.qnetwork_target = QNetwork(state_size, action_size, seed).to(device)
-        #self.qnetwork_local = QNetwork(state_size, action_size, seed).cuda()
-        #self.qnetwork_target = QNetwork(state_size, action_size, seed).cuda()
         self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=LR)
 
         # Replay memory
@@ -69,7 +66,6 @@ class Agent():
             eps (float): epsilon, for epsilon-greedy action selection
         """
         state = torch.from_numpy(state).float().unsqueeze(0).to(device)
-        #state = torch.from_numpy(state).float().unsqueeze(0).cuda()
         self.qnetwork_local.eval()
         with torch.no_grad():
             action_values = self.qnetwork_local(state)
@@ -91,16 +87,22 @@ class Agent():
         """
         states, actions, rewards, next_states, dones = experiences
 
-        ## TODO: compute and minimize the loss
-        "*** YOUR CODE HERE ***"
         # Get max predicted Q values (for next states) from target model
-        Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
+        #Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
+        # double DQN
+        ind = self.qnetwork_local(next_states).detach().max(1)[1].unsqueeze(1)
+        #print('next ind: ', ind)
+        Q_targets_next = self.qnetwork_target(next_states).gather(1, ind).detach()
+        #print('Q_targets_next',Q_targets_next)
+        #print('self.qnetwork_target(next_states)', self.qnetwork_target(next_states))
         # Compute Q targets for current states 
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
+        #print('Q_targets', Q_targets)
 
         # Get expected Q values from local model
         Q_expected = self.qnetwork_local(states).gather(1, actions)
-
+        #print('Q_expected', Q_expected)
+        
         # Compute loss
         loss = F.mse_loss(Q_expected, Q_targets)
         # Minimize the loss
@@ -123,6 +125,18 @@ class Agent():
         """
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
+            
+    def save(self, path):
+        torch.save(self.qnetwork_local.state_dict(), path + 'local.mdl')
+        torch.save(self.qnetwork_target.state_dict(), path + 'target.mdl')
+        
+    def load(self, path):
+        self.qnetwork_local = Agent()
+        self.qnetwork_target = Agent()
+        self.qnetwork_local.load_state_dict(torch.load(path + 'local.mdl'))
+        self.qnetwork_target.load_state_dict(torch.load(path + 'target.mdl'))
+        self.qnetwork_local.eval()
+        self.qnetwork_target.eval()
 
 
 class ReplayBuffer:
@@ -158,12 +172,6 @@ class ReplayBuffer:
         rewards = torch.from_numpy(np.vstack([e.reward for e in experiences if e is not None])).float().to(device)
         next_states = torch.from_numpy(np.vstack([e.next_state for e in experiences if e is not None])).float().to(device)
         dones = torch.from_numpy(np.vstack([e.done for e in experiences if e is not None]).astype(np.uint8)).float().to(device)
-        
-        '''states = torch.from_numpy(np.vstack([e.state for e in experiences if e is not None])).float().cuda()
-        actions = torch.from_numpy(np.vstack([e.action for e in experiences if e is not None])).long().cuda()
-        rewards = torch.from_numpy(np.vstack([e.reward for e in experiences if e is not None])).float().cuda()
-        next_states = torch.from_numpy(np.vstack([e.next_state for e in experiences if e is not None])).float().cuda()
-        dones = torch.from_numpy(np.vstack([e.done for e in experiences if e is not None]).astype(np.uint8)).float().cuda()'''
   
         return (states, actions, rewards, next_states, dones)
 
