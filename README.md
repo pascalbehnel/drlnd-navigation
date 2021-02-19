@@ -36,7 +36,7 @@ To run this implementation, follow these steps:
 
   ```
   cd python
-  pip install .
+  pip install -r requirements.txt
   ```
 
 - Download the Unity Environment that is matching your operating system (thanks to Udacity)

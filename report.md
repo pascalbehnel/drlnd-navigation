@@ -84,7 +84,7 @@ I am using a normal relu for an activation function.
 
 ### Plot of Rewards
 
-![](https://github.com/pascalbehnel/drlnd-navigation/blob/main/score-graph.PNG)
+![](https://github.com/pascalbehnel/drlnd-navigation/blob/main/score-graph.PNG?raw=true)
 
 
 ### Ideas for Future Work

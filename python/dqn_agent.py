@@ -130,11 +130,13 @@ class Agent():
         torch.save(self.qnetwork_local.state_dict(), path + 'local.mdl')
         torch.save(self.qnetwork_target.state_dict(), path + 'target.mdl')
         
-    def load(self, path):
-        self.qnetwork_local = Agent()
-        self.qnetwork_target = Agent()
-        self.qnetwork_local.load_state_dict(torch.load(path + 'local.mdl'))
-        self.qnetwork_target.load_state_dict(torch.load(path + 'target.mdl'))
+    def load(self, path, state_size, action_size, seed):
+        self.qnetwork_local = QNetwork(state_size, action_size, seed)
+        self.qnetwork_target = QNetwork(state_size, action_size, seed).to(device)
+        self.qnetwork_local.load_state_dict(torch.load(path + 'local.mdl',
+                                            map_location=torch.device(device)))
+        self.qnetwork_target.load_state_dict(torch.load(path + 'target.mdl',
+                                             map_location=torch.device(device)))
         self.qnetwork_local.eval()
         self.qnetwork_target.eval()
 
