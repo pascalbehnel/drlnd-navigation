@@ -82,7 +82,20 @@ def forward(self, state):
 
 I am using a normal relu for an activation function.
 
-### Plot of Rewards
+### Hyperparameters
+
+The following hyperparameters were used while training the Agent:
+- batch size = 64
+- gamma = 0.99 (discount factor)
+- epsilon start = 1.0 (starting value for epsilon)
+- epsilon end = 0.01 (minimum value for epsilon)
+- epsilon decay = 0.995 (multiplier for epsilon, applied after each episode)
+- learning rate = 5e-4 (used in Adam optimizer)
+- tau = 1e-3 (lower values mean slower learning for target model)
+
+### Result
+
+After training for 600 episodes the Agent was already able to solve the environment by receiving a reward of +13.79 as an average of the last 100 episodes. The below graph shows the development over the training course which lasted 2.000 episodes. 
 
 ![](https://github.com/pascalbehnel/drlnd-navigation/blob/main/score-graph.PNG?raw=true)
 

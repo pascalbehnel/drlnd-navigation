@@ -10,7 +10,7 @@ The agent is able to perform 4 actions:
 - move forward
 - move backward
 
-The environment is considered solved, if the Agent is able to collect an average of +16 points over the course of 100 episodes.
+The environment is considered solved, if the Agent is able to collect an average of +13 points over the course of 100 episodes.
 
 # Repository Content
 - repord.md: A document that tries to describe the Algorithm behind this implementation
